@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
 import { Zap, Users } from 'lucide-react'
 import { socket, getSessionId } from '../socket'
 import { useGameStore } from '../store'
@@ -9,7 +8,7 @@ import { LetterTile } from '../components/ui/LetterTile'
 import { HowToPlayModal } from '../components/ui/HowToPlayModal'
 
 export function HomeScreen() {
-  const navigate = useNavigate()
+
   const isWaiting = useGameStore(state => state.isWaiting)
   const [showHowToPlay, setShowHowToPlay] = useState(false)
 
@@ -109,7 +108,7 @@ export function HomeScreen() {
         <div className="w-1/3">
           <TileButton 
             variant="primary"
-            onClick={(e) => {
+            onClick={(e: any) => {
               const wrapper = (e.currentTarget as HTMLButtonElement).parentElement;
               const input = wrapper?.previousElementSibling as HTMLInputElement;
               if (!input) return;

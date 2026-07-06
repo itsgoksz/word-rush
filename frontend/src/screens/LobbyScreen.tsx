@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Copy, CheckCircle } from 'lucide-react'
 import { useGameStore } from '../store'
 import { socket, getSessionId } from '../socket'
@@ -7,7 +7,7 @@ import { TileButton } from '../components/ui/TileButton'
 export function LobbyScreen() {
   const room = useGameStore(state => state.room)
   const [copied, setCopied] = useState(false)
-  const [joinCode, setJoinCode] = useState('')
+
 
   if (!room) {
     // If not in a room, maybe show the Join Room input here, 

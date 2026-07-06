@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { RoomState, Player } from './types'
+import type { RoomState } from './types'
 
 interface GameState {
   room: RoomState | null

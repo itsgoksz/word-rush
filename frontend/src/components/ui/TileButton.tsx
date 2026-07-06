@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion'
-import { ReactNode } from 'react'
+import type { ReactNode, MouseEvent } from 'react'
 
 interface TileButtonProps {
   children: ReactNode
   variant?: 'primary' | 'secondary'
-  onClick?: () => void
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void
   disabled?: boolean
   className?: string
   type?: 'button' | 'submit' | 'reset'

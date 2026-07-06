@@ -15,7 +15,7 @@ export function WordEntry() {
 
   const selfId = getSessionId()
   const self = room.players.find(p => p.id === selfId)
-  const opponent = room.players.find(p => p.id !== selfId)
+
   
   const team0Picker = room.round % 2 !== 0 ? 0 : 2
   const team1Picker = room.round % 2 !== 0 ? 1 : 3
