@@ -1,7 +1,9 @@
 import { io, Socket } from 'socket.io-client'
 import { useGameStore } from './store'
 
-const SERVER_URL = '/'
+const SERVER_URL = import.meta.env.PROD 
+  ? 'https://word-rush-production-15e5.up.railway.app' 
+  : '/'
 
 export const socket: Socket = io(SERVER_URL, {
   autoConnect: false,
