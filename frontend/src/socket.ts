@@ -1,8 +1,8 @@
 import { io, Socket } from 'socket.io-client'
 import { useGameStore } from './store'
 
-const SERVER_URL = import.meta.env.PROD 
-  ? 'https://word-rush-production-15e5.up.railway.app' 
+const SERVER_URL = import.meta.env.PROD
+  ? 'https://word-rush-production-15e5.up.railway.app'
   : '/'
 
 export const socket: Socket = io(SERVER_URL, {
@@ -22,7 +22,7 @@ export function getSessionId(): string {
 socket.on('connect', () => {
   console.log('Connected to server')
   const sessionId = getSessionId()
-  
+
   // Check if we are reconnecting
   const roomId = useGameStore.getState().room?.id
   if (roomId) {
