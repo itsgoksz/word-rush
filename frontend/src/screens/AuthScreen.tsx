@@ -22,6 +22,12 @@ export function AuthScreen() {
       return
     }
 
+    if (import.meta.env.VITE_SUPABASE_URL === undefined || import.meta.env.VITE_SUPABASE_URL === '') {
+      setError("Supabase environment variables are missing in Vercel.")
+      setLoading(false)
+      return
+    }
+
     const email = `${cleanUsername}@wordrush.app`
 
     try {
