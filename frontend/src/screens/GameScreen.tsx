@@ -5,6 +5,7 @@ import { WordEntry } from '../components/WordEntry'
 import { ResultsPhase } from '../components/ResultsPhase'
 import { EmoteWheel } from '../components/ui/EmoteWheel'
 import { FloatingEmotes } from '../components/ui/FloatingEmotes'
+import { BombPhase } from '../components/BombPhase'
 
 export function GameScreen() {
   const room = useGameStore(state => state.room)
@@ -32,6 +33,13 @@ export function GameScreen() {
         )}
         {room.state === 'WORD_ENTRY' && <WordEntry />}
         {(room.state === 'ROUND_RESULT' || room.state === 'MATCH_RESULT') && <ResultsPhase />}
+        
+        {room.state === 'BOMB_PHASE' && <BombPhase />}
+        {room.state === 'BOMB_EXPLODED' && (
+           <div className="absolute inset-0 flex items-center justify-center text-5xl font-black animate-bounce text-berry font-display uppercase tracking-widest drop-shadow-[0_0_15px_rgba(255,107,107,0.8)]">
+             BOOM!
+           </div>
+        )}
       </div>
       
       <FloatingEmotes />

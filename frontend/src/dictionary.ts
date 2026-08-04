@@ -24,17 +24,17 @@ export function sanitizeWord(word: string): string {
   return word.toLowerCase().trim().replace(/[^a-z]/g, '')
 }
 
-export function validateWord(word: string, startLetter: string, endLetter: string): boolean {
+export function validateWord(word: string, startLetter: string, endLetter?: string): boolean {
   const sanitized = sanitizeWord(word)
   const requiredStart = startLetter.toLowerCase()
-  const requiredEnd = endLetter.toLowerCase()
 
   if (sanitized.length <= 2) return false
 
-  if (
-    !sanitized.startsWith(requiredStart) ||
-    !sanitized.endsWith(requiredEnd)
-  ) {
+  if (!sanitized.startsWith(requiredStart)) {
+    return false
+  }
+
+  if (endLetter && !sanitized.endsWith(endLetter.toLowerCase())) {
     return false
   }
 

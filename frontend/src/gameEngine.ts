@@ -20,7 +20,7 @@ export function createRoom(roomId: string, isQuickMatch: boolean = false, mode: 
     players: {},
     state: 'LOBBY',
     round: 1,
-    maxRounds: MAX_ROUNDS,
+    maxRounds: mode === '2v2' ? 3 : MAX_ROUNDS,
     timerValue: 0,
     timerInterval: null,
     disconnectTimeout: null,
@@ -53,7 +53,8 @@ export function setTimer(room: Room, seconds: number, onComplete: () => void) {
   broadcastRoomState(room.id)
 
   room.timerInterval = setInterval(() => {
-    room.timerValue--
+    const tickAmount = (room.state === 'BOMB_PHASE' && room.bomb) ? room.bomb.tickMultiplier : 1
+    room.timerValue -= tickAmount
     if (room.timerValue <= 0) {
       if (room.timerInterval) clearInterval(room.timerInterval)
       if (room.timerOnComplete) room.timerOnComplete()
@@ -66,7 +67,83 @@ export function setTimer(room: Room, seconds: number, onComplete: () => void) {
 export function startGameLoop(roomId: string) {
   const room = rooms[roomId]
   if (!room) return
-  startLetterSelection(room)
+  if (room.mode === '2v2') {
+    startBombPhase(room)
+  } else {
+    startLetterSelection(room)
+  }
+}
+
+// --- BOMB PHASE (2v2) ---
+
+function startBombPhase(room: Room) {
+  room.state = 'BOMB_PHASE'
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  room.bomb = {
+    holderTeam: Math.random() < 0.5 ? 0 : 1,
+    currentLetter: alphabet[Math.floor(Math.random() * alphabet.length)],
+    previousWord: '',
+    tickMultiplier: 1,
+    usedWords: []
+  }
+  
+  Object.values(room.players).forEach(p => {
+    p.word = null
+    p.wordValid = null
+  })
+  
+  // Start 60s bomb
+  setTimer(room, 60, () => {
+    handleBombExplosion(room)
+  })
+}
+
+function handleBombExplosion(room: Room) {
+  room.state = 'BOMB_EXPLODED'
+  
+  const losingTeam = room.bomb!.holderTeam
+  const winningTeam = losingTeam === 0 ? 1 : 0
+  
+  Object.values(room.players).forEach(p => {
+    if (p.team === winningTeam) {
+      p.score += 1
+    }
+  })
+  
+  broadcastRoomState(room.id)
+  
+  setTimeout(() => {
+    const winningTeamScore = Object.values(room.players).find(p => p.team === winningTeam)?.score || 0
+    if (winningTeamScore >= room.maxRounds) {
+      endMatch(room)
+    } else {
+      room.round++
+      startBombPhase(room)
+    }
+  }, 4000)
+}
+
+export function handleBombWordSubmission(room: Room, sessionId: string, word: string) {
+  if (room.state !== 'BOMB_PHASE' || !room.bomb) return
+  const player = room.players[sessionId]
+  if (!player || player.team !== room.bomb.holderTeam) return
+  
+  const sanitizedWord = word.toLowerCase().trim().replace(/[^a-z]/g, '')
+  if (sanitizedWord.length <= 2) return
+  
+  if (!sanitizedWord.startsWith(room.bomb.currentLetter.toLowerCase())) return
+  
+  if (!validateWord(sanitizedWord, room.bomb.currentLetter)) return
+  
+  if (room.bomb.usedWords.includes(sanitizedWord)) return
+  
+  room.bomb.usedWords.push(sanitizedWord)
+  room.bomb.previousWord = sanitizedWord
+  room.bomb.currentLetter = sanitizedWord[sanitizedWord.length - 1].toUpperCase()
+  room.bomb.holderTeam = room.bomb.holderTeam === 0 ? 1 : 0
+  room.bomb.tickMultiplier = Math.max(1, sanitizedWord.length - 3)
+  
+  broadcastRoomState(room.id)
 }
 
 function getPickers(room: Room): number[] {

@@ -10,7 +10,8 @@ import {
   checkLetterSelectionComplete,
   checkWordEntryComplete,
   handleDisconnect,
-  handleReconnect
+  handleReconnect,
+  handleBombWordSubmission
 } from './gameEngine'
 import type { RoomState } from './types'
 
@@ -227,7 +228,8 @@ export function broadcastRoomState(roomId: string) {
     round: room.round,
     maxRounds: room.maxRounds,
     timerValue: room.timerValue,
-    players: playersArr
+    players: playersArr,
+    bomb: room.bomb
   }
 
   // Update local host UI
@@ -270,6 +272,10 @@ export function selectLetter(roomId: string, sessionId: string, letter: string) 
 
 export function submitWord(roomId: string, sessionId: string, word: string) {
   sendAction({ type: 'submit_word', roomId, sessionId, word })
+}
+
+export function submitBombWord(roomId: string, sessionId: string, word: string) {
+  sendAction({ type: 'submit_bomb_word', roomId, sessionId, word })
 }
 
 export function sendTypingStatus(_roomId: string, sessionId: string, isTyping: boolean) {
@@ -389,6 +395,10 @@ function handleGuestAction(payload: any) {
         player.submittedAt = Date.now()
         checkWordEntryComplete(room)
       }
+      break
+    }
+    case 'submit_bomb_word': {
+      handleBombWordSubmission(room, sessionId, payload.word)
       break
     }
     case 'leave_room': {

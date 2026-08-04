@@ -5,6 +5,8 @@ export type GameState =
   | 'WORD_ENTRY'
   | 'ROUND_RESULT'
   | 'MATCH_RESULT'
+  | 'BOMB_PHASE'
+  | 'BOMB_EXPLODED'
 
 export interface Profile {
   id: string
@@ -30,6 +32,14 @@ export interface Player {
   team: number
 }
 
+export interface BombState {
+  holderTeam: number
+  currentLetter: string
+  previousWord: string
+  tickMultiplier: number
+  usedWords: string[]
+}
+
 export interface Room {
   id: string
   isQuickMatch: boolean
@@ -43,6 +53,7 @@ export interface Room {
   timerInterval: number | null
   timerOnComplete?: () => void
   disconnectTimeout: number | null
+  bomb?: BombState
   matchResult?: {
     winnerId: string | null
     loserId: string | null
@@ -66,6 +77,7 @@ export interface RoomState {
   timerValue: number
   players: Player[]
   mode: '1v1' | '2v2'
+  bomb?: BombState
   matchResult?: {
     winnerId: string | null
     loserId: string | null
