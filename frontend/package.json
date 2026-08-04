@@ -12,7 +12,6 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.110.2",
     "@tailwindcss/vite": "^4.3.1",
-    "an-array-of-english-words": "^2.0.0",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "framer-motion": "^12.40.0",
@@ -21,6 +20,7 @@
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.18.0",
     "tailwind-merge": "^3.6.0",
+    "wordlist-english": "^1.2.1",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
