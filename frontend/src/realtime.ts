@@ -96,10 +96,15 @@ export function connectSocket() {
 
 export function quickMatch(mode: '1v1' | '2v2' = '1v1') {
   useGameStore.getState().setWaiting(true)
+  console.log('[WordRush] quickMatch called, tracking searching...')
   lobbyChannel?.track({
     sessionId: getSessionId(),
     status: 'searching',
     mode
+  }).then((res) => {
+    console.log('[WordRush] track result:', res)
+  }).catch((err) => {
+    console.error('[WordRush] track error:', err)
   })
 }
 
