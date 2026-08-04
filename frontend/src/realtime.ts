@@ -45,40 +45,42 @@ export function connectSocket() {
   lobbyChannel
     .on('presence', { event: 'sync' }, () => {
       const state = lobbyChannel?.presenceState()
+      console.log('[WordRush] Presence sync fired. State:', state)
       if (!state) return
 
       const mySessionId = getSessionId()
       const myPresence = state[mySessionId]?.[0] as any
+      console.log(`[WordRush] My session: ${mySessionId}, My presence:`, myPresence)
       if (!myPresence || myPresence.status !== 'searching') return
 
-      // Find someone else searching
       for (const [key, presences] of Object.entries(state)) {
         if (key === mySessionId) continue
         const presence = presences[0] as any
         
+        console.log(`[WordRush] Evaluating peer: ${key}`, presence)
+        
         if (presence && presence.status === 'searching' && presence.mode === myPresence.mode) {
-          // We found a match! 
-          // To prevent race conditions, the alphabetically first sessionId becomes the Host
+          console.log(`[WordRush] Found match: ${key}. Comparing ${mySessionId} < ${key}:`, mySessionId < key)
           if (mySessionId < key) {
-            console.log('I am the host, creating room...')
+            console.log('[WordRush] I am the host, creating room...')
             const newRoomId = generateRoomId()
             
-            // Invite the other player
             lobbyChannel?.send({
               type: 'broadcast',
               event: 'invite',
               payload: { to: key, roomId: newRoomId, mode: myPresence.mode }
             })
 
-            // Join the room myself
             joinRoomAsHost(newRoomId, myPresence.mode)
+            break // Prevent creating multiple rooms if multiple matches
           }
         }
       }
     })
     .on('broadcast', { event: 'invite' }, ({ payload }) => {
+      console.log('[WordRush] Received invite payload:', payload)
       if (payload.to === getSessionId()) {
-        console.log('Received invite, joining as guest...')
+        console.log('[WordRush] Joining as guest...')
         joinRoomAsGuest(payload.roomId)
       }
     })
