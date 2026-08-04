@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Zap, Users } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Zap, Users, Info } from 'lucide-react'
 import { quickMatch, joinRoomAsGuest, joinRoomAsHost } from '../realtime'
 import { generateRoomId } from '../gameEngine'
 import { useGameStore } from '../store'
@@ -13,6 +13,7 @@ export function HomeScreen() {
   const isWaiting = useGameStore(state => state.isWaiting)
   const profile = useGameStore(state => state.profile)
   const [showHowToPlay, setShowHowToPlay] = useState(false)
+  const [showIpModal, setShowIpModal] = useState(false)
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
@@ -41,7 +42,16 @@ export function HomeScreen() {
         {profile && (
           <div className="inline-flex flex-col items-center bg-clay-light px-6 py-2 rounded-full border-2 border-clay-dark">
             <span className="text-honey font-bold font-sans text-xs uppercase tracking-widest">{profile.username}</span>
-            <span className="text-cream font-black font-display text-2xl">{profile.elo} Brain Cells</span>
+            <div className="flex items-center justify-center">
+              <span className="text-cream font-black font-display text-2xl">{profile.elo} IP</span>
+              <button 
+                onClick={() => setShowIpModal(true)} 
+                className="text-muted hover:text-honey transition-colors ml-2 mt-1"
+                aria-label="What is IP?"
+              >
+                <Info size={18} />
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -143,6 +153,27 @@ export function HomeScreen() {
         isOpen={showHowToPlay} 
         onClose={() => setShowHowToPlay(false)} 
       />
+
+      <AnimatePresence>
+        {showIpModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-clay max-w-sm w-full rounded-2xl border-4 border-clay-dark p-6 text-center shadow-2xl relative z-50"
+            >
+              <h2 className="text-2xl font-black font-display text-honey mb-4 uppercase">Intelligence Points</h2>
+              <p className="text-cream font-sans text-sm mb-6 leading-relaxed">
+                IP represents your skill rating. Win matches to earn IP, but be careful—losing against lower-rated players will cost you heavily!
+              </p>
+              <TileButton variant="primary" onClick={() => setShowIpModal(false)}>
+                Got it
+              </TileButton>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

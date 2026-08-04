@@ -208,9 +208,9 @@ export function ResultsPhase() {
                  transition={{ delay: 0.5, type: 'spring' }}
                  className={`text-xl font-black font-sans mt-2 ${isWinner ? 'text-moss' : isLoser ? 'text-berry' : 'text-muted'}`}
                >
-                 {isWinner ? `+${room.matchResult.winnerChange} Brain Cells` : 
-                  isLoser ? `${room.matchResult.loserChange} Brain Cells` : 
-                  '0 Brain Cells'}
+                 {isWinner ? `+${room.matchResult.winnerChange} IP` : 
+                  isLoser ? `${room.matchResult.loserChange} IP` : 
+                  '0 IP'}
                </motion.div>
              )}
            </div>
