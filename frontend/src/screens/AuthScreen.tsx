@@ -46,14 +46,16 @@ export function AuthScreen() {
         
         // If successful, create profile
         if (data.user) {
-          const { error: profileError } = await supabase.from('profiles').insert([
-            { id: data.user.id, username: cleanUsername }
-          ])
+          const newProfile = { id: data.user.id, username: cleanUsername, elo: 1000 }
+          const { error: profileError } = await supabase.from('profiles').insert([newProfile])
           
           if (profileError) {
-             // Rollback user if profile creation fails? For now just show error.
              throw new Error("Failed to create profile. Username might be taken.")
           }
+          
+          import('../store').then(({ useGameStore }) => {
+            useGameStore.getState().setProfile(newProfile as any)
+          })
         }
       }
     } catch (err: any) {
