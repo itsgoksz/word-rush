@@ -30,7 +30,6 @@ let activeChannel: RealtimeChannel | null = null
 let lobbyChannel: RealtimeChannel | null = null
 let isHost = false
 let currentRoomId: string | null = null
-let isMatching = false
 
 // --- LOBBY & MATCHMAKING ---
 
@@ -56,8 +55,6 @@ export function connectSocket() {
       const myPresence = myPresences.find(p => p.status === 'searching')
       console.log(`[WordRush] My session: ${mySessionId}, My searching presence:`, myPresence)
       if (!myPresence) return
-      
-      if (isMatching) return
 
       for (const [key, presences] of Object.entries(state)) {
         if (key === mySessionId) continue
@@ -67,7 +64,6 @@ export function connectSocket() {
         
         if (presence && presence.status === 'searching' && presence.mode === myPresence.mode) {
           console.log(`[WordRush] Found match: ${key}. Comparing ${mySessionId} < ${key}:`, mySessionId < key)
-          isMatching = true
           if (mySessionId < key) {
             console.log('[WordRush] I am the host, creating room...')
             const newRoomId = generateRoomId()
@@ -103,7 +99,6 @@ export function connectSocket() {
 
 export function quickMatch(mode: '1v1' | '2v2' = '1v1') {
   useGameStore.getState().setWaiting(true)
-  isMatching = false
   console.log('[WordRush] quickMatch called, tracking searching...')
   lobbyChannel?.track({
     sessionId: getSessionId(),
@@ -121,9 +116,6 @@ export function quickMatch(mode: '1v1' | '2v2' = '1v1') {
 function setupRoomChannel(roomId: string, onSubscribe: () => void) {
   if (activeChannel) {
     activeChannel.unsubscribe()
-    if (currentRoomId && isHost) {
-      deleteRoom(currentRoomId)
-    }
   }
   currentRoomId = roomId
   activeChannel = supabase.channel(`room:${roomId}`)
@@ -164,7 +156,6 @@ function setupRoomChannel(roomId: string, onSubscribe: () => void) {
 export function joinRoomAsHost(roomId: string, mode: '1v1' | '2v2' = '1v1') {
   isHost = true
   const sessionId = getSessionId()
-  isMatching = true
   
   setupRoomChannel(roomId, () => {
     const room = engineCreateRoom(roomId, true, mode)
@@ -193,7 +184,7 @@ export function joinRoomAsHost(roomId: string, mode: '1v1' | '2v2' = '1v1') {
 export function joinRoomAsGuest(roomId: string) {
   isHost = false
   const sessionId = getSessionId()
-  isMatching = true
+
   setupRoomChannel(roomId, () => {
     // Tell host we joined
     activeChannel?.send({

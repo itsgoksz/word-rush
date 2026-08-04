@@ -1,0 +1,8 @@
+@@ -176,6 +182,7 @@
+ export function joinRoomAsGuest(roomId: string) {
+   isHost = false
+   const sessionId = getSessionId()
++  isMatching = true
+   setupRoomChannel(roomId, () => {
+     useGameStore.getState().setWaiting(false)
+     lobbyChannel?.track({ sessionId, status: 'playing' })
