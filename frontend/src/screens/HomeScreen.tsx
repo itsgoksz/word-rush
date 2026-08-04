@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Zap, Users } from 'lucide-react'
-import { getSessionId, quickMatch, joinRoomAsGuest, joinRoomAsHost } from '../realtime'
+import { quickMatch, joinRoomAsGuest, joinRoomAsHost } from '../realtime'
 import { generateRoomId } from '../gameEngine'
 import { useGameStore } from '../store'
 import { TileButton } from '../components/ui/TileButton'

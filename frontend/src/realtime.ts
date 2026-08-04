@@ -213,7 +213,7 @@ export function broadcastRoomState(roomId: string) {
   })
 }
 
-export function emitToRoom(roomId: string, event: string, payload: any) {
+export function emitToRoom(_roomId: string, event: string, payload: any) {
   if (!isHost) return
   activeChannel?.send({ type: 'broadcast', event, payload })
 }
@@ -244,7 +244,7 @@ export function submitWord(roomId: string, sessionId: string, word: string) {
   sendAction({ type: 'submit_word', roomId, sessionId, word })
 }
 
-export function sendTypingStatus(roomId: string, sessionId: string, isTyping: boolean) {
+export function sendTypingStatus(_roomId: string, sessionId: string, isTyping: boolean) {
   activeChannel?.send({
     type: 'broadcast',
     event: 'opponent_typing',

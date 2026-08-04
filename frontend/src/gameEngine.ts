@@ -1,4 +1,4 @@
-import type { Room, Player, GameState } from './types'
+import type { Room } from './types'
 import { validateWord } from './dictionary'
 import { broadcastRoomState } from './realtime'
 

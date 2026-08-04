@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Copy, CheckCircle } from 'lucide-react'
 import { useGameStore } from '../store'
-import { getSessionId, setReady, leaveRoom } from '../realtime'
+import { getSessionId, setReady } from '../realtime'
 import { TileButton } from '../components/ui/TileButton'
 import { EmoteWheel } from '../components/ui/EmoteWheel'
 import { FloatingEmotes } from '../components/ui/FloatingEmotes'
