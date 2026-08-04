@@ -49,13 +49,16 @@ export function connectSocket() {
       if (!state) return
 
       const mySessionId = getSessionId()
-      const myPresence = state[mySessionId]?.[0] as any
-      console.log(`[WordRush] My session: ${mySessionId}, My presence:`, myPresence)
-      if (!myPresence || myPresence.status !== 'searching') return
+      const myPresences = state[mySessionId] as any[]
+      if (!myPresences) return
+      
+      const myPresence = myPresences.find(p => p.status === 'searching')
+      console.log(`[WordRush] My session: ${mySessionId}, My searching presence:`, myPresence)
+      if (!myPresence) return
 
       for (const [key, presences] of Object.entries(state)) {
         if (key === mySessionId) continue
-        const presence = presences[0] as any
+        const presence = (presences as any[]).find(p => p.status === 'searching')
         
         console.log(`[WordRush] Evaluating peer: ${key}`, presence)
         
