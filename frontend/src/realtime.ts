@@ -36,7 +36,11 @@ let currentRoomId: string | null = null
 export function connectSocket() {
   if (lobbyChannel) return
   
-  lobbyChannel = supabase.channel('global_lobby')
+  lobbyChannel = supabase.channel('global_lobby', {
+    config: {
+      presence: { key: getSessionId() }
+    }
+  })
   
   lobbyChannel
     .on('presence', { event: 'sync' }, () => {
