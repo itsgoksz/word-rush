@@ -1,6 +1,6 @@
-import { Server, Socket } from 'socket.io'
-import { Room, Player, GameState } from './types'
+import type { Room, Player, GameState } from './types'
 import { validateWord } from './dictionary'
+import { broadcastRoomState } from './realtime'
 
 const rooms: Record<string, Room> = {}
 
@@ -35,6 +35,9 @@ export function getRoom(roomId: string): Room | undefined {
 }
 
 export function deleteRoom(roomId: string) {
+  const room = rooms[roomId]
+  if (room && room.timerInterval) clearInterval(room.timerInterval)
+  if (room && room.disconnectTimeout) clearTimeout(room.disconnectTimeout)
   delete rooms[roomId]
 }
 
@@ -42,55 +45,12 @@ export function generateRoomId(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase()
 }
 
-// Emits state to all connected players in the room
-export function broadcastRoomState(io: Server, roomId: string) {
-  const room = rooms[roomId]
-  if (!room) return
-
-  // We need to hide opponent's letter during LETTER_SELECTION
-  // and opponent's word during WORD_ENTRY
-  const playersArr = Object.values(room.players)
-
-  for (const player of playersArr) {
-    if (player.disconnected) continue
-
-    const sanitizedPlayers = playersArr.map(p => {
-      const isSelf = p.id === player.id
-      return {
-        id: p.id,
-        isReady: p.isReady,
-        score: p.score,
-        streak: p.streak,
-        disconnected: p.disconnected,
-        // Hide letter if not self during selection
-        letter: (room.state === 'LETTER_SELECTION' && !isSelf) ? (p.letter ? '*' : null) : p.letter,
-        // Hide word if not self during entry
-        word: (room.state === 'WORD_ENTRY' && !isSelf) ? (p.word ? '*' : null) : p.word,
-        wordValid: p.wordValid,
-        wordPoints: p.wordPoints,
-        joinOrder: p.joinOrder,
-        team: p.team
-      }
-    })
-
-    io.to(player.socketId).emit('roomUpdate', {
-      id: room.id,
-      mode: room.mode,
-      state: room.state,
-      round: room.round,
-      maxRounds: room.maxRounds,
-      timerValue: room.timerValue,
-      players: sanitizedPlayers
-    })
-  }
-}
-
-export function setTimer(io: Server, room: Room, seconds: number, onComplete: () => void) {
+export function setTimer(room: Room, seconds: number, onComplete: () => void) {
   if (room.timerInterval) clearInterval(room.timerInterval)
   
   room.timerValue = seconds
   room.timerOnComplete = onComplete
-  broadcastRoomState(io, room.id)
+  broadcastRoomState(room.id)
 
   room.timerInterval = setInterval(() => {
     room.timerValue--
@@ -98,15 +58,15 @@ export function setTimer(io: Server, room: Room, seconds: number, onComplete: ()
       if (room.timerInterval) clearInterval(room.timerInterval)
       if (room.timerOnComplete) room.timerOnComplete()
     } else {
-      broadcastRoomState(io, room.id)
+      broadcastRoomState(room.id)
     }
   }, TICK_RATE)
 }
 
-export function startGameLoop(io: Server, roomId: string) {
+export function startGameLoop(roomId: string) {
   const room = rooms[roomId]
   if (!room) return
-  startLetterSelection(io, room)
+  startLetterSelection(room)
 }
 
 function getPickers(room: Room): number[] {
@@ -116,7 +76,7 @@ function getPickers(room: Room): number[] {
   return [team0Picker, team1Picker]
 }
 
-function startLetterSelection(io: Server, room: Room) {
+function startLetterSelection(room: Room) {
   room.state = 'LETTER_SELECTION'
   
   // Reset round local state
@@ -128,7 +88,7 @@ function startLetterSelection(io: Server, room: Room) {
     p.submittedAt = null
   })
 
-  setTimer(io, room, LETTER_SELECTION_TIME, () => {
+  setTimer(room, LETTER_SELECTION_TIME, () => {
     // If timer expires and some players didn't pick, assign random letter
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     const pickers = getPickers(room)
@@ -137,11 +97,11 @@ function startLetterSelection(io: Server, room: Room) {
         p.letter = alphabet[Math.floor(Math.random() * alphabet.length)]
       }
     })
-    startLetterReveal(io, room)
+    startLetterReveal(room)
   })
 }
 
-export function checkLetterSelectionComplete(io: Server, room: Room) {
+export function checkLetterSelectionComplete(room: Room) {
   const pickers = getPickers(room)
   const allSelected = Object.values(room.players)
     .filter(p => pickers.includes(p.joinOrder))
@@ -149,38 +109,38 @@ export function checkLetterSelectionComplete(io: Server, room: Room) {
 
   if (allSelected) {
     if (room.timerInterval) clearInterval(room.timerInterval)
-    startLetterReveal(io, room)
+    startLetterReveal(room)
   } else {
-    broadcastRoomState(io, room.id)
+    broadcastRoomState(room.id)
   }
 }
 
-function startLetterReveal(io: Server, room: Room) {
+function startLetterReveal(room: Room) {
   room.state = 'LETTER_REVEAL'
-  setTimer(io, room, LETTER_REVEAL_TIME, () => {
-    startWordEntry(io, room)
+  setTimer(room, LETTER_REVEAL_TIME, () => {
+    startWordEntry(room)
   })
 }
 
-function startWordEntry(io: Server, room: Room) {
+function startWordEntry(room: Room) {
   room.state = 'WORD_ENTRY'
-  setTimer(io, room, WORD_ENTRY_TIME, () => {
-    processRoundResults(io, room)
+  setTimer(room, WORD_ENTRY_TIME, () => {
+    processRoundResults(room)
   })
 }
 
-export function checkWordEntryComplete(io: Server, room: Room) {
+export function checkWordEntryComplete(room: Room) {
   const allSubmitted = Object.values(room.players).every(p => p.word !== null)
   if (allSubmitted) {
     if (room.timerInterval) clearInterval(room.timerInterval)
-    processRoundResults(io, room)
+    processRoundResults(room)
   } else {
     // Broadcast immediately so opponent sees the "submitted" checkmark
-    broadcastRoomState(io, room.id)
+    broadcastRoomState(room.id)
   }
 }
 
-function processRoundResults(io: Server, room: Room) {
+function processRoundResults(room: Room) {
   room.state = 'ROUND_RESULT'
   
   const players = Object.values(room.players)
@@ -243,42 +203,51 @@ function processRoundResults(io: Server, room: Room) {
   room.history.push(historyEntry)
 
   const animationTime = Math.ceil(maxLen * 0.3 + 0.5)
-  // In 2v2 there are up to 4 words to display, but they can animate in parallel per team.
-  // We'll just give it a safe buffer.
   const dynamicResultTime = Math.max(ROUND_RESULT_TIME, animationTime + 4)
 
-  setTimer(io, room, dynamicResultTime, () => {
+  setTimer(room, dynamicResultTime, () => {
     if (room.round >= room.maxRounds) {
-      endMatch(io, room)
+      endMatch(room)
     } else {
       room.round++
-      startLetterSelection(io, room)
+      startLetterSelection(room)
     }
   })
 }
 
-function endMatch(io: Server, room: Room) {
+function endMatch(room: Room) {
   room.state = 'MATCH_RESULT'
-  broadcastRoomState(io, room.id)
-  
-  import('./supabase').then(({ saveMatchResult }) => {
-    saveMatchResult(room)
-  })
+  broadcastRoomState(room.id)
 
-  // Auto-delete room after 60 seconds to prevent memory leaks
-  setTimeout(() => {
-    if (rooms[room.id]) {
-      io.to(room.id).emit('matchEnded', { reason: 'room_closed' })
-      delete rooms[room.id]
+  if (room.mode === '1v1') {
+    const players = Object.values(room.players)
+    if (players.length === 2 && players[0].score !== players[1].score) {
+      const winner = players[0].score > players[1].score ? players[0] : players[1]
+      const loser = players[0].score > players[1].score ? players[1] : players[0]
+
+      import('./supabaseClient').then(({ supabase }) => {
+        supabase.rpc('update_match_result', {
+          winner_id: winner.id,
+          loser_id: loser.id,
+          winner_elo_change: 25,
+          loser_elo_change: -20
+        }).then(({ error }) => {
+          if (error) console.error("Failed to update elo:", error)
+        })
+      })
     }
+  }
+  
+  // Clean up room after match ends
+  setTimeout(() => {
+    deleteRoom(room.id)
   }, 60000)
 }
 
-export function handleDisconnect(io: Server, socketId: string) {
+export function handleDisconnect(sessionId: string) {
   for (const roomId in rooms) {
     const room = rooms[roomId]
-    const playerArr = Object.values(room.players)
-    const player = playerArr.find(p => p.socketId === socketId)
+    const player = room.players[sessionId]
     
     if (player) {
       player.disconnected = true
@@ -290,17 +259,18 @@ export function handleDisconnect(io: Server, socketId: string) {
         room.timeRemaining = room.timerValue
       }
 
-      broadcastRoomState(io, roomId)
+      broadcastRoomState(roomId)
 
       // Start grace period
       if (!room.disconnectTimeout) {
         room.disconnectTimeout = setTimeout(() => {
-          // If still disconnected after grace period, end match or drop room
           const stillDisconnected = Object.values(room.players).some(p => p.disconnected)
           if (stillDisconnected) {
             if (room.timerInterval) clearInterval(room.timerInterval)
-            io.to(roomId).emit('matchEnded', { reason: 'opponent_abandoned' })
-            delete rooms[roomId]
+            import('./realtime').then(({ emitToRoom }) => {
+              emitToRoom(roomId, 'matchEnded', { reason: 'opponent_abandoned' })
+            })
+            deleteRoom(roomId)
           }
         }, DISCONNECT_GRACE_PERIOD)
       }
@@ -309,14 +279,12 @@ export function handleDisconnect(io: Server, socketId: string) {
   }
 }
 
-export function handleReconnect(io: Server, socket: Socket, playerSessionId: string) {
+export function handleReconnect(sessionId: string) {
   for (const roomId in rooms) {
     const room = rooms[roomId]
-    const player = room.players[playerSessionId]
+    const player = room.players[sessionId]
     if (player) {
-      player.socketId = socket.id
       player.disconnected = false
-      socket.join(roomId)
       
       // Clear grace period timeout if everyone is back
       const anyDisconnected = Object.values(room.players).some(p => p.disconnected)
@@ -328,15 +296,13 @@ export function handleReconnect(io: Server, socket: Socket, playerSessionId: str
         
         // Resume timer if it was paused
         if (room.timeRemaining !== undefined && room.timerOnComplete) {
-          setTimer(io, room, room.timeRemaining, room.timerOnComplete)
+          setTimer(room, room.timeRemaining, room.timerOnComplete)
           room.timeRemaining = undefined
         }
       }
       
-      broadcastRoomState(io, roomId)
+      broadcastRoomState(roomId)
       break
     }
   }
 }
-
-

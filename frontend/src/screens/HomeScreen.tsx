@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Zap, Users } from 'lucide-react'
-import { socket, getSessionId } from '../socket'
+import { getSessionId, quickMatch, joinRoomAsGuest, joinRoomAsHost } from '../realtime'
+import { generateRoomId } from '../gameEngine'
 import { useGameStore } from '../store'
 import { TileButton } from '../components/ui/TileButton'
 import { LetterTile } from '../components/ui/LetterTile'
@@ -10,6 +11,7 @@ import { HowToPlayModal } from '../components/ui/HowToPlayModal'
 export function HomeScreen() {
 
   const isWaiting = useGameStore(state => state.isWaiting)
+  const profile = useGameStore(state => state.profile)
   const [showHowToPlay, setShowHowToPlay] = useState(false)
 
   return (
@@ -30,17 +32,24 @@ export function HomeScreen() {
         </motion.div>
       </div>
 
-      <div className="mb-12 relative z-10">
+      <div className="mb-8 relative z-10">
         <h1 className="text-5xl font-black mb-2 tracking-tighter text-terracotta font-display">
           WordRush
         </h1>
-        <p className="text-muted font-medium">Fast-paced 1v1 Word Game</p>
+        <p className="text-muted font-medium mb-4">Fast-paced 1v1 Word Game</p>
+        
+        {profile && (
+          <div className="inline-flex flex-col items-center bg-clay-light px-6 py-2 rounded-full border-2 border-clay-dark">
+            <span className="text-honey font-bold font-sans text-xs uppercase tracking-widest">{profile.username}</span>
+            <span className="text-cream font-black font-display text-2xl">{profile.elo} ELO</span>
+          </div>
+        )}
       </div>
 
       <div className="w-full space-y-4 relative z-10">
         <TileButton
           variant="primary"
-          onClick={() => socket.emit('quick_match', { sessionId: getSessionId(), mode: '1v1' })}
+          onClick={() => quickMatch('1v1')}
           disabled={isWaiting}
           className="flex items-center justify-center space-x-2"
         >
@@ -56,7 +65,7 @@ export function HomeScreen() {
 
         <TileButton
           variant="primary"
-          onClick={() => socket.emit('quick_match', { sessionId: getSessionId(), mode: '2v2' })}
+          onClick={() => quickMatch('2v2')}
           disabled={isWaiting}
           className="flex items-center justify-center space-x-2 bg-honey text-ink border-none hover:bg-honey/90"
         >
@@ -73,7 +82,7 @@ export function HomeScreen() {
         <div className="flex gap-2 w-full">
           <TileButton
             variant="secondary"
-            onClick={() => socket.emit('create_room', { sessionId: getSessionId(), mode: '1v1' })}
+            onClick={() => joinRoomAsHost(generateRoomId(), '1v1')}
             disabled={isWaiting}
             className="flex-1 flex items-center justify-center text-xs sm:text-sm"
           >
@@ -81,7 +90,7 @@ export function HomeScreen() {
           </TileButton>
           <TileButton
             variant="secondary"
-            onClick={() => socket.emit('create_room', { sessionId: getSessionId(), mode: '2v2' })}
+            onClick={() => joinRoomAsHost(generateRoomId(), '2v2')}
             disabled={isWaiting}
             className="flex-1 flex items-center justify-center text-xs sm:text-sm"
           >
@@ -100,7 +109,7 @@ export function HomeScreen() {
             if (e.key === 'Enter') {
               const code = e.currentTarget.value.trim().toUpperCase()
               if (code.length === 6) {
-                socket.emit('join_room', { roomId: code, sessionId: getSessionId() })
+                joinRoomAsGuest(code)
               }
             }
           }}
@@ -114,7 +123,7 @@ export function HomeScreen() {
               if (!input) return;
               const code = input.value.trim().toUpperCase()
               if (code.length === 6) {
-                socket.emit('join_room', { roomId: code, sessionId: getSessionId() })
+                joinRoomAsGuest(code)
               }
             }}
           >

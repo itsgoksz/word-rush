@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useGameStore } from '../store'
-import { socket, getSessionId } from '../socket'
+import { getSessionId, selectLetter } from '../realtime'
 import { LetterTile } from './ui/LetterTile'
 
 const QWERTY = [
@@ -26,7 +26,7 @@ export function LetterSelection() {
 
   const handleSelect = (letter: string) => {
     if (!isPicker || self?.letter) return // already selected or not picker
-    socket.emit('select_letter', { roomId: room.id, sessionId: selfId, letter })
+    selectLetter(room.id, selfId, letter)
   }
 
   return (

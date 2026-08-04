@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store'
-import { getSessionId, socket } from '../socket'
+import { getSessionId, leaveRoom, quickMatch, sendRematchRequest } from '../realtime'
 import { LetterTile } from './ui/LetterTile'
 import { TileButton } from './ui/TileButton'
+import { audioEngine } from '../audio'
 
 export function ResultsPhase() {
   const room = useGameStore(state => state.room)
+  const rematchRequestedBy = useGameStore(state => state.rematchRequestedBy)
   const navigate = useNavigate()
   const [selfRevealed, setSelfRevealed] = useState(0)
   const [oppRevealed, setOppRevealed] = useState(0)
@@ -29,9 +31,18 @@ export function ResultsPhase() {
   const oppTeamScore = oppTeam.reduce((acc, p) => acc + p.score, 0)
 
   useEffect(() => {
+    audioEngine.init()
     if (revealPhase === 'self') {
+      if (selfRevealed > 0 && selfRevealed === myTeamMaxLen) {
+        if (myTeam.some(p => p.wordValid === false)) audioEngine.playBuzzer()
+        else if (myTeam.some(p => p.wordValid)) audioEngine.playSubmit()
+      }
+      
       if (selfRevealed < myTeamMaxLen) {
-        const timer = setTimeout(() => setSelfRevealed(p => p + 1), 300)
+        const timer = setTimeout(() => {
+          setSelfRevealed(p => p + 1)
+          audioEngine.playClick()
+        }, 300)
         return () => clearTimeout(timer)
       } else {
         setRevealPhase('pause')
@@ -40,14 +51,22 @@ export function ResultsPhase() {
       const timer = setTimeout(() => setRevealPhase('opponent'), 500)
       return () => clearTimeout(timer)
     } else if (revealPhase === 'opponent') {
+      if (oppRevealed > 0 && oppRevealed === oppTeamMaxLen) {
+        if (oppTeam.some(p => p.wordValid === false)) audioEngine.playBuzzer()
+        else if (oppTeam.some(p => p.wordValid)) audioEngine.playSubmit()
+      }
+
       if (oppRevealed < oppTeamMaxLen) {
-        const timer = setTimeout(() => setOppRevealed(p => p + 1), 300)
+        const timer = setTimeout(() => {
+          setOppRevealed(p => p + 1)
+          audioEngine.playClick()
+        }, 300)
         return () => clearTimeout(timer)
       } else {
         setRevealPhase('done')
       }
     }
-  }, [revealPhase, selfRevealed, oppRevealed, myTeamMaxLen, oppTeamMaxLen])
+  }, [revealPhase, selfRevealed, oppRevealed, myTeamMaxLen, oppTeamMaxLen, myTeam, oppTeam])
 
   const renderWord = (word: string | null, isValid: boolean | null, points: number, revealedCount: number) => {
     if (!word) {
@@ -98,13 +117,29 @@ export function ResultsPhase() {
   }
 
   const handleReturnHome = () => {
-    socket.emit('leave_room', { roomId: room.id, sessionId: selfId })
+    leaveRoom(room.id, selfId)
     useGameStore.getState().resetRoom()
     navigate('/')
   }
 
+  const isWinner = myTeamScore > oppTeamScore
+  const isLoser = myTeamScore < oppTeamScore
+
+  const handleRematchClick = () => {
+    if (isLoser && !rematchRequestedBy) {
+      sendRematchRequest(room.id, selfId)
+    } else {
+      quickMatch(room.mode)
+      navigate('/')
+    }
+  }
+
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center bg-ink p-4">
+    <motion.div 
+      animate={rematchRequestedBy && rematchRequestedBy !== selfId ? { x: [-5, 5, -5, 5, 0], backgroundColor: ['#0f172a', '#4c0519', '#0f172a'] } : {}}
+      transition={{ duration: 1, repeat: Infinity, repeatType: 'reverse' }}
+      className="absolute inset-0 flex flex-col items-center justify-center bg-ink p-4"
+    >
       <h2 className="text-3xl font-display font-black mb-8 text-center text-cream">
         {room.state === 'MATCH_RESULT' ? 'Match Final' : 'Round Results'}
       </h2>
@@ -160,28 +195,39 @@ export function ResultsPhase() {
       </div>
 
       {room.state === 'MATCH_RESULT' && (
-        <div className="mt-8 flex flex-col space-y-4 w-full max-w-xs">
+        <div className="mt-8 flex flex-col space-y-4 w-full max-w-xs relative z-10">
            <div className="text-center mb-4">
              <div className="text-2xl font-bold font-display text-cream">
-               {myTeamScore > oppTeamScore ? '🏆 YOU WIN!' : 
-                myTeamScore < oppTeamScore ? '💀 YOU LOSE' : '🤝 DRAW'}
+               {isWinner ? '🏆 YOU WIN!' : 
+                isLoser ? '💀 YOU LOSE' : '🤝 DRAW'}
              </div>
            </div>
+
+           {rematchRequestedBy && rematchRequestedBy !== selfId ? (
+              <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="bg-berry/20 border-2 border-berry p-4 rounded-tile text-center">
+                 <div className="text-berry font-bold font-display uppercase text-xl animate-pulse">Opponent Demands Rematch!</div>
+                 <div className="text-cream text-sm font-sans mt-2">Do you accept, or run?</div>
+              </motion.div>
+           ) : rematchRequestedBy === selfId ? (
+              <div className="bg-clay-light border-2 border-clay-dark p-4 rounded-tile text-center">
+                 <div className="text-honey font-bold font-display uppercase">Waiting for response...</div>
+              </div>
+           ) : null}
            
            <TileButton 
              variant="primary"
-             onClick={() => {
-                socket.emit('quick_match', { sessionId: selfId })
-                navigate('/')
-             }}
+             disabled={rematchRequestedBy === selfId}
+             onClick={handleRematchClick}
+             className={rematchRequestedBy && rematchRequestedBy !== selfId ? '!bg-berry border-berry !text-cream shadow-[0_4px_0_0_#4c0519]' : ''}
            >
-             Play Again (New Match)
+             {rematchRequestedBy && rematchRequestedBy !== selfId ? 'ACCEPT REMATCH' : isLoser ? 'DEMAND REMATCH' : 'Play Again'}
            </TileButton>
            <TileButton 
              variant="secondary"
              onClick={handleReturnHome}
+             className={rematchRequestedBy && rematchRequestedBy !== selfId ? '!bg-ink border-berry !text-berry hover:!text-cream shadow-[0_4px_0_0_#4c0519]' : ''}
            >
-             Return Home
+             {rematchRequestedBy && rematchRequestedBy !== selfId ? 'RUN AWAY (Home)' : 'Return Home'}
            </TileButton>
         </div>
       )}
@@ -201,6 +247,6 @@ export function ResultsPhase() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }

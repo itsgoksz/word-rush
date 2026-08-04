@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useGameStore } from '../store'
-import { socket, getSessionId } from '../socket'
+import { getSessionId, submitWord, sendTypingStatus } from '../realtime'
 import { Check } from 'lucide-react'
 import { LetterTile } from './ui/LetterTile'
 import { TileButton } from './ui/TileButton'
+import { audioEngine } from '../audio'
+import confetti from 'canvas-confetti'
 
 export function WordEntry() {
   const room = useGameStore(state => state.room)
   const opponentTyping = useGameStore(state => state.opponentTyping)
   const [input, setInput] = useState('')
+  const [shake, setShake] = useState(false)
   
   if (!room) return null
 
   const selfId = getSessionId()
   const self = room.players.find(p => p.id === selfId)
-
   
   const team0Picker = room.round % 2 !== 0 ? 0 : 2
   const team1Picker = room.round % 2 !== 0 ? 1 : 3
@@ -40,10 +42,20 @@ export function WordEntry() {
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     if (isSubmitted || input.trim().length === 0) return
-    socket.emit('submit_word', { roomId: room.id, sessionId: selfId, word: input })
+    
+    audioEngine.init()
+    if (input.length >= 7) {
+      audioEngine.playExplosion()
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } })
+      setShake(true)
+      setTimeout(() => setShake(false), 500)
+    } else {
+      audioEngine.playSubmit()
+    }
+
+    submitWord(room.id, selfId, input)
   }
 
-  // Auto-focus input on mount
   useEffect(() => {
     const el = document.getElementById('word-input')
     if (el && !isSubmitted) {
@@ -52,7 +64,11 @@ export function WordEntry() {
   }, [isSubmitted])
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center p-8 bg-ink">
+    <motion.div 
+      animate={shake ? { x: [-10, 10, -15, 15, -10, 10, 0] } : {}}
+      transition={{ duration: 0.4 }}
+      className="absolute inset-0 flex flex-col items-center p-8 bg-ink"
+    >
       <div className="text-center mb-12 mt-8">
         <p className="text-muted font-medium mb-4 tracking-widest uppercase text-sm font-sans">Your Goal</p>
         <div className="flex items-center justify-center space-x-6">
@@ -78,8 +94,12 @@ export function WordEntry() {
           type="text"
           value={input}
           onChange={(e) => {
+            audioEngine.init()
+            if (e.target.value.length > input.length) {
+              audioEngine.playClick()
+            }
             setInput(e.target.value)
-            socket.emit('typing_status', { roomId: room.id, sessionId: selfId, isTyping: e.target.value.length > 0 })
+            sendTypingStatus(room.id, selfId, e.target.value.length > 0)
           }}
           disabled={isSubmitted}
           className="w-full bg-clay-light border-[3px] border-clay-dark focus:border-honey outline-none rounded-tile py-4 px-6 text-center text-2xl font-bold tracking-widest uppercase transition-colors disabled:opacity-50 text-cream font-sans placeholder-muted/50"
@@ -126,6 +146,6 @@ export function WordEntry() {
           </TileButton>
         </div>
       </form>
-    </div>
+    </motion.div>
   )
 }

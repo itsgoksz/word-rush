@@ -6,6 +6,14 @@ export type GameState =
   | 'ROUND_RESULT'
   | 'MATCH_RESULT'
 
+export interface Profile {
+  id: string
+  username: string
+  elo: number
+  wins: number
+  losses: number
+}
+
 export interface Player {
   id: string
   isReady: boolean
@@ -17,8 +25,30 @@ export interface Player {
   streak: number
   disconnected: boolean
   submittedAt: number | null
-  team: number
   joinOrder: number
+  team: number
+}
+
+export interface Room {
+  id: string
+  isQuickMatch: boolean
+  mode: '1v1' | '2v2'
+  players: Record<string, Player>
+  state: GameState
+  round: number
+  maxRounds: number
+  timerValue: number
+  timeRemaining?: number
+  timerInterval: number | null
+  timerOnComplete?: () => void
+  disconnectTimeout: number | null
+  history: {
+    round: number
+    letters: string[]
+    words: string[]
+    validity: boolean[]
+    points: number[]
+  }[]
 }
 
 export interface RoomState {

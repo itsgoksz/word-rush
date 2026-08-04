@@ -3,6 +3,8 @@ import { useGameStore } from '../store'
 import { LetterSelection } from '../components/LetterSelection'
 import { WordEntry } from '../components/WordEntry'
 import { ResultsPhase } from '../components/ResultsPhase'
+import { EmoteWheel } from '../components/ui/EmoteWheel'
+import { FloatingEmotes } from '../components/ui/FloatingEmotes'
 
 export function GameScreen() {
   const room = useGameStore(state => state.room)
@@ -24,13 +26,16 @@ export function GameScreen() {
       <div className="flex-1 overflow-hidden relative">
         {room.state === 'LETTER_SELECTION' && <LetterSelection />}
         {room.state === 'LETTER_REVEAL' && (
-          <div className="absolute inset-0 flex items-center justify-center text-4xl font-black animate-pulse">
+          <div className="absolute inset-0 flex items-center justify-center text-4xl font-black animate-pulse text-cream font-display">
             Get Ready!
           </div>
         )}
         {room.state === 'WORD_ENTRY' && <WordEntry />}
         {(room.state === 'ROUND_RESULT' || room.state === 'MATCH_RESULT') && <ResultsPhase />}
       </div>
+      
+      <FloatingEmotes />
+      {room.state !== 'MATCH_RESULT' && <EmoteWheel />}
     </div>
   )
 }

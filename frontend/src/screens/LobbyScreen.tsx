@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Copy, CheckCircle } from 'lucide-react'
 import { useGameStore } from '../store'
-import { socket, getSessionId } from '../socket'
+import { getSessionId, setReady, leaveRoom } from '../realtime'
 import { TileButton } from '../components/ui/TileButton'
+import { EmoteWheel } from '../components/ui/EmoteWheel'
+import { FloatingEmotes } from '../components/ui/FloatingEmotes'
 
 export function LobbyScreen() {
   const room = useGameStore(state => state.room)
@@ -28,7 +30,7 @@ export function LobbyScreen() {
   }
 
   const handleReady = () => {
-    socket.emit('set_ready', { roomId: room.id, sessionId: selfId })
+    setReady(room.id, selfId)
   }
 
   return (
@@ -71,6 +73,9 @@ export function LobbyScreen() {
       >
         {self?.isReady ? 'Waiting for opponent...' : 'Ready Up'}
       </TileButton>
+
+      <FloatingEmotes />
+      <EmoteWheel />
     </div>
   )
 }
