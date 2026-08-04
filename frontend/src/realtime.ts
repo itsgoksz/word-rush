@@ -171,6 +171,7 @@ export function joinRoomAsHost(roomId: string, mode: '1v1' | '2v2' = '1v1') {
     // Add host as player
     room.players[sessionId] = {
       id: sessionId,
+      elo: useGameStore.getState().profile?.elo || 1000,
       isReady: true,
       letter: null,
       word: null,
@@ -199,7 +200,11 @@ export function joinRoomAsGuest(roomId: string) {
     activeChannel?.send({
       type: 'broadcast',
       event: 'action',
-      payload: { type: 'join_room', sessionId }
+      payload: { 
+        type: 'join_room', 
+        sessionId,
+        elo: useGameStore.getState().profile?.elo || 1000 
+      }
     })
     
     lobbyChannel?.track({ sessionId, status: 'playing' })
@@ -326,6 +331,7 @@ function handleGuestAction(payload: any) {
       if (!room.players[sessionId]) {
         room.players[sessionId] = {
           id: sessionId,
+          elo: payload.elo || 1000,
           isReady: true, // Auto ready for quick match
           letter: null,
           word: null,

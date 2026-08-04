@@ -41,7 +41,7 @@ export function HomeScreen() {
         {profile && (
           <div className="inline-flex flex-col items-center bg-clay-light px-6 py-2 rounded-full border-2 border-clay-dark">
             <span className="text-honey font-bold font-sans text-xs uppercase tracking-widest">{profile.username}</span>
-            <span className="text-cream font-black font-display text-2xl">{profile.elo} ELO</span>
+            <span className="text-cream font-black font-display text-2xl">{profile.elo} Brain Cells</span>
           </div>
         )}
       </div>

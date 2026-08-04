@@ -16,6 +16,7 @@ export interface Profile {
 
 export interface Player {
   id: string
+  elo: number
   isReady: boolean
   letter: string | null
   word: string | null
@@ -42,6 +43,12 @@ export interface Room {
   timerInterval: number | null
   timerOnComplete?: () => void
   disconnectTimeout: number | null
+  matchResult?: {
+    winnerId: string | null
+    loserId: string | null
+    winnerChange: number
+    loserChange: number
+  }
   history: {
     round: number
     letters: string[]
@@ -59,4 +66,10 @@ export interface RoomState {
   timerValue: number
   players: Player[]
   mode: '1v1' | '2v2'
+  matchResult?: {
+    winnerId: string | null
+    loserId: string | null
+    winnerChange: number
+    loserChange: number
+  }
 }

@@ -201,6 +201,18 @@ export function ResultsPhase() {
                {isWinner ? '🏆 YOU WIN!' : 
                 isLoser ? '💀 YOU LOSE' : '🤝 DRAW'}
              </div>
+             {room.matchResult && (
+               <motion.div 
+                 initial={{ scale: 0, opacity: 0 }}
+                 animate={{ scale: 1, opacity: 1 }}
+                 transition={{ delay: 0.5, type: 'spring' }}
+                 className={`text-xl font-black font-sans mt-2 ${isWinner ? 'text-moss' : isLoser ? 'text-berry' : 'text-muted'}`}
+               >
+                 {isWinner ? `+${room.matchResult.winnerChange} Brain Cells` : 
+                  isLoser ? `${room.matchResult.loserChange} Brain Cells` : 
+                  '0 Brain Cells'}
+               </motion.div>
+             )}
            </div>
 
            {rematchRequestedBy && rematchRequestedBy !== selfId ? (

@@ -216,27 +216,50 @@ function processRoundResults(room: Room) {
 }
 
 function endMatch(room: Room) {
-  room.state = 'MATCH_RESULT'
-  broadcastRoomState(room.id)
-
   if (room.mode === '1v1') {
     const players = Object.values(room.players)
     if (players.length === 2 && players[0].score !== players[1].score) {
       const winner = players[0].score > players[1].score ? players[0] : players[1]
       const loser = players[0].score > players[1].score ? players[1] : players[0]
 
+      // K-32 ELO Calculation
+      const K = 32
+      const expectedWinner = 1 / (1 + Math.pow(10, (loser.elo - winner.elo) / 400))
+      const expectedLoser = 1 / (1 + Math.pow(10, (winner.elo - loser.elo) / 400))
+      
+      const winnerChange = Math.max(1, Math.round(K * (1 - expectedWinner)))
+      const loserChange = Math.min(-1, Math.round(K * (0 - expectedLoser)))
+
+      room.matchResult = {
+        winnerId: winner.id,
+        loserId: loser.id,
+        winnerChange,
+        loserChange
+      }
+
       import('./supabaseClient').then(({ supabase }) => {
         supabase.rpc('update_match_result', {
           winner_id: winner.id,
           loser_id: loser.id,
-          winner_elo_change: 25,
-          loser_elo_change: -20
+          winner_elo_change: winnerChange,
+          loser_elo_change: loserChange
         }).then(({ error }) => {
           if (error) console.error("Failed to update elo:", error)
         })
       })
+    } else if (players.length === 2 && players[0].score === players[1].score) {
+      // DRAW
+      room.matchResult = {
+        winnerId: null,
+        loserId: null,
+        winnerChange: 0,
+        loserChange: 0
+      }
     }
   }
+
+  room.state = 'MATCH_RESULT'
+  broadcastRoomState(room.id)
   
   // Clean up room after match ends
   setTimeout(() => {
