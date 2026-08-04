@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Users, Info } from 'lucide-react'
+import { Zap, Info } from 'lucide-react'
 import { quickMatch, joinRoomAsGuest, joinRoomAsHost } from '../realtime'
 import { generateRoomId } from '../gameEngine'
 import { useGameStore } from '../store'
@@ -69,22 +69,6 @@ export function HomeScreen() {
             <>
               <Zap size={24} />
               <span>1v1 Quick Match</span>
-            </>
-          )}
-        </TileButton>
-
-        <TileButton
-          variant="primary"
-          onClick={() => quickMatch('2v2')}
-          disabled={isWaiting}
-          className="flex items-center justify-center space-x-2 bg-honey text-ink border-none hover:bg-honey/90"
-        >
-          {isWaiting ? (
-            <span className="animate-pulse">Finding Opponents...</span>
-          ) : (
-            <>
-              <Users size={24} />
-              <span>2v2 Quick Match</span>
             </>
           )}
         </TileButton>
