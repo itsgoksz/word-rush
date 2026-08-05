@@ -10,6 +10,7 @@ import { audioEngine } from '../audio'
 export function ResultsPhase() {
   const room = useGameStore(state => state.room)
   const rematchRequestedBy = useGameStore(state => state.rematchRequestedBy)
+  const fetchProfile = useGameStore(state => state.fetchProfile)
   const navigate = useNavigate()
   const [selfRevealed, setSelfRevealed] = useState(0)
   const [oppRevealed, setOppRevealed] = useState(0)
@@ -119,6 +120,7 @@ export function ResultsPhase() {
   const handleReturnHome = () => {
     leaveRoom(room.id, selfId)
     useGameStore.getState().resetRoom()
+    fetchProfile()
     navigate('/')
   }
 
@@ -129,6 +131,7 @@ export function ResultsPhase() {
     if (isLoser && !rematchRequestedBy) {
       sendRematchRequest(room.id, selfId)
     } else {
+      fetchProfile()
       quickMatch(room.mode)
       navigate('/')
     }

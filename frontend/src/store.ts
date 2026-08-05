@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { RoomState, Player, Profile } from './types'
 import { getSessionId } from './realtime'
 import type { User } from '@supabase/supabase-js'
+import { supabase } from './supabaseClient'
 
 interface GameState {
   user: User | null
@@ -20,9 +21,10 @@ interface GameState {
   addEmote: (emote: string, isSelf: boolean) => void
   removeEmote: (id: string) => void
   resetRoom: () => void
+  fetchProfile: () => Promise<void>
 }
 
-export const useGameStore = create<GameState>((set) => ({
+export const useGameStore = create<GameState>((set, get) => ({
   user: null,
   profile: null,
   room: null,
@@ -60,5 +62,11 @@ export const useGameStore = create<GameState>((set) => ({
   removeEmote: (id) => set(state => ({
     activeEmotes: state.activeEmotes.filter(e => e.id !== id)
   })),
-  resetRoom: () => set({ room: null, isWaiting: false, opponentTyping: false, rematchRequestedBy: null, activeEmotes: [] })
+  resetRoom: () => set({ room: null, isWaiting: false, opponentTyping: false, rematchRequestedBy: null, activeEmotes: [] }),
+  fetchProfile: async () => {
+    const user = get().user
+    if (!user) return
+    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+    if (data) set({ profile: data as Profile })
+  }
 }))

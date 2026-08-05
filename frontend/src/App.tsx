@@ -20,7 +20,7 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        fetchProfile(session.user.id)
+        useGameStore.getState().fetchProfile().then(() => setLoading(false))
       } else {
         setLoading(false)
       }
@@ -30,7 +30,7 @@ function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        fetchProfile(session.user.id)
+        useGameStore.getState().fetchProfile()
       } else {
         setProfile(null)
       }
@@ -38,12 +38,6 @@ function App() {
 
     return () => subscription.unsubscribe()
   }, [])
-
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
-    if (data) setProfile(data as any)
-    setLoading(false)
-  }
 
   useEffect(() => {
     if (user) {
