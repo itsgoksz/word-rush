@@ -7,6 +7,8 @@ import { useGameStore } from '../store'
 import { TileButton } from '../components/ui/TileButton'
 import { LetterTile } from '../components/ui/LetterTile'
 import { HowToPlayModal } from '../components/ui/HowToPlayModal'
+import { LeaderboardModal } from '../components/ui/LeaderboardModal'
+import { Trophy } from 'lucide-react'
 
 export function HomeScreen() {
 
@@ -14,6 +16,7 @@ export function HomeScreen() {
   const profile = useGameStore(state => state.profile)
   const [showHowToPlay, setShowHowToPlay] = useState(false)
   const [showIpModal, setShowIpModal] = useState(false)
+  const [showLeaderboard, setShowLeaderboard] = useState(false)
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
@@ -126,16 +129,30 @@ export function HomeScreen() {
         </div>
       </div>
       
-      <button 
-        onClick={() => setShowHowToPlay(true)}
-        className="text-muted font-sans font-bold hover:text-cream transition-colors mt-8 uppercase tracking-wider text-sm relative z-10"
-      >
-        How to Play
-      </button>
+      <div className="flex space-x-6 mt-8 relative z-10">
+        <button 
+          onClick={() => setShowLeaderboard(true)}
+          className="text-honey font-sans font-bold hover:text-cream transition-colors uppercase tracking-wider text-sm flex items-center space-x-1"
+        >
+          <Trophy size={16} />
+          <span>Leaderboard</span>
+        </button>
+        <button 
+          onClick={() => setShowHowToPlay(true)}
+          className="text-muted font-sans font-bold hover:text-cream transition-colors uppercase tracking-wider text-sm"
+        >
+          How to Play
+        </button>
+      </div>
 
       <HowToPlayModal 
         isOpen={showHowToPlay} 
         onClose={() => setShowHowToPlay(false)} 
+      />
+      <LeaderboardModal 
+        isOpen={showLeaderboard}
+        onClose={() => setShowLeaderboard(false)}
+        currentUserId={profile?.id}
       />
 
       <AnimatePresence>
