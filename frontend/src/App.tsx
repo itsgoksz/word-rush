@@ -54,7 +54,13 @@ function App() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-ink text-cream flex flex-col items-center p-0 md:p-8">
+    <div 
+      className="min-h-[100dvh] bg-ink text-cream flex flex-col items-center md:p-8"
+      style={{
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+      }}
+    >
       <div className="w-full max-w-md bg-clay md:rounded-[24px] shadow-2xl overflow-hidden h-[100dvh] md:h-auto md:min-h-[650px] flex flex-col relative md:border-[4px] border-clay-dark">
         <Router>
           <Routes>
