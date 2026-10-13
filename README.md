@@ -1,37 +1,38 @@
 <p align="center">
-  <img src="assets/word-rush-logo.png" alt="WordRush Logo" width="130" style="border-radius: 26px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
+  <img src="assets/word-rush-logo.png" alt="WordRush Logo" width="140" style="border-radius: 28px; box-shadow: 0 12px 36px rgba(0,0,0,0.35);" />
 </p>
 
 # ⚡ WordRush
 
-> **Fast-paced, real-time multiplayer word dueling on web & mobile.** Scrabble tactics collide with high-pressure blitz chess. Lock letters, beat the ticking timer, and climb the ELO ladder.
+> **Fast-paced, real-time competitive word dueling on web & mobile.** Scrabble tactics collide with high-pressure blitz chess. Lock boundary letters, dodge ticking bomb fuses, and climb the global ELO ladder.
 
 <p align="center">
-  <img src="assets/preview.png" alt="WordRush Gameplay Preview" width="100%" style="border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);" />
+  <img src="assets/preview.png" alt="WordRush Arena Preview" width="100%" style="border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12);" />
 </p>
 
 ---
 
-## What is WordRush?
+## ⚡ The Big Idea
 
-Word games are usually slow, asynchronous, or turn-based. **WordRush** was built for people who want high-adrenaline vocabulary battles in real time:
+Word games have been stuck in slow, asynchronous loops for decades: waiting 4 hours for an opponent to play a 3-letter word on a board. 
 
-- **1v1 Blitz (Sandwich Constraints):** You lock in a starting letter, your opponent locks in an ending letter (or vice versa). You both race against a 30-second clock to submit a valid dictionary word that satisfies the boundary letters. Longer words and quicker answers net bonus points!
-- **2v2 Hot Potato Bomb Mode:** Team panic mode! Words must chain off the last letter of the previous word (*Shiritori* style). Every successful word passed speeds up the bomb's tick multiplier. Don't let the fuse detonate on your turn!
-- **Zero-Backend Peer Sync:** Runs entirely over **Supabase Realtime Broadcast & Presence channels**. No separate game server process to keep alive—the client game engine authoritatively validates turns, ticks timers, and broadcasts state across rooms.
+**WordRush** was built for people who crave high-adrenaline, real-time vocabulary battles:
+- **1v1 Blitz (Sandwich Constraints):** You pick a starting letter, your opponent picks an ending letter. Both players scramble against a ticking 30-second fuse to type valid dictionary words that satisfy the boundary letters. Speed and word length grant massive multipliers!
+- **2v2 Hot Potato Bomb Mode:** Team panic mode! Words chain off the last letter of the opponent's word (*Shiritori* style). Every successful pass accelerates the bomb's tick multiplier. Don't let the fuse detonate while the bomb is in your hands!
+- **Zero-Server Peer Sync:** Runs entirely over **Supabase Realtime Broadcast & Presence channels**. No separate game server process to keep alive—the client game engine authoritatively validates turns, ticks timers, and broadcasts state across rooms with sub-50ms latency.
 - **Synthesized Web Audio:** Every sound—the mechanical key presses, countdown sirens, harmonic chord submissions, and bomb explosions—is generated procedurally in real time via the **Web Audio API**. Zero bulky MP3 files to download.
-- **Tactile Claymorphic Design:** Custom clay-themed UI built with Tailwind CSS v4 and Framer Motion spring physics. Tiles compress, bounce, and react to every input.
+- **Tactile Claymorphic Design:** Custom clay-themed UI built with Tailwind CSS v4 and Framer Motion spring physics. Tiles compress, bounce, and react to every tap.
 
 ---
 
-## 🎮 Game Modes & Rules
+## 🎮 Game Modes & Battle Rules
 
 ### 1. 1v1 Blitz Mode
-1. **Letter Selection (10s):** One player picks the first letter; the other picks the last letter.
-2. **The Reveal (2s):** Both boundary letters lock into the board.
+1. **Letter Selection (10s):** One player locks in the first letter; the opponent locks in the last letter.
+2. **The Reveal (2s):** Both boundary letters slam into the board.
 3. **Word Entry (30s):** Type and submit words that begin and end with the designated sandwich letters. Validated instantly against a 300,000+ word offline dictionary.
-4. **Scoring:** Base points scale with word length, multiplied by submission speed.
-5. **Match Resolution:** Play across up to 10 rounds. The winner takes the match and claims ELO rating points.
+4. **Scoring:** Points scale with word length multiplied by submission speed.
+5. **Match Resolution:** Battle across up to 10 rounds. The winner takes the match and claims ELO rating points.
 
 ### 2. 2v2 Hot Potato Bomb Mode
 - 4 players divided into 2 teams.
@@ -41,15 +42,15 @@ Word games are usually slow, asynchronous, or turn-based. **WordRush** was built
 
 ---
 
-## 🕹️ Architecture & How Multiplayer Works
+## 🕹️ Architecture & Peer-to-Peer Networking
 
-WordRush achieves sub-50ms turn synchronization without running an authoritative game server:
+WordRush achieves sub-50ms turn synchronization without running an authoritative game server like Colyseus or Node sockets:
 
 ```mermaid
 flowchart LR
     subgraph ClientA [Player 1 Client]
         InputA[Letter / Word Submission] --> StoreA[Zustand Store]
-        EngineA[Client Game Engine] --> AudioA[Web Audio Synth]
+        EngineA[Client Game Engine] --> AudioA[Procedural Web Audio Synth]
     end
 
     subgraph Supabase [Supabase Infrastructure]
@@ -190,7 +191,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```bash
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in two browser tabs (or an incognito window) to test live 1v1 matchmaking locally.
+Open [http://localhost:5173](http://localhost:5173) in two browser windows to test real-time 1v1 matchmaking locally.
 
 ---
 
