@@ -1,160 +1,100 @@
 <p align="center">
-  <img src="assets/word-rush-logo.png" alt="WordRush Logo" width="180" style="border-radius: 28px; box-shadow: 0 12px 30px rgba(0,0,0,0.35);" />
+  <img src="assets/word-rush-logo.png" alt="WordRush Logo" width="130" style="border-radius: 26px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
 </p>
 
-<h1 align="center">⚡ WordRush</h1>
+# ⚡ WordRush
+
+> **Fast-paced, real-time multiplayer word dueling on web & mobile.** Scrabble tactics collide with high-pressure blitz chess. Lock letters, beat the ticking timer, and climb the ELO ladder.
 
 <p align="center">
-  <strong>Fast-Paced, Real-Time Competitive Word Battle Across Web & Mobile</strong>
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#game-modes">Game Modes</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#supabase-setup">Supabase Setup</a> •
-  <a href="#mobile-builds">Mobile Builds</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-8.0-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/Supabase-Realtime-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Realtime" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Capacitor-iOS_%26_Android-119EFF?style=for-the-badge&logo=capacitor&logoColor=white" alt="Capacitor" />
-  <img src="https://img.shields.io/badge/License-MIT-F2A65A?style=for-the-badge" alt="License MIT" />
+  <img src="assets/preview.png" alt="WordRush Gameplay Preview" width="100%" style="border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);" />
 </p>
 
 ---
 
-## 📖 Overview
+## What is WordRush?
 
-**WordRush** is an adrenaline-fueled, multiplayer word dueling game built for players who think fast and type faster. Combining the tactical vocabulary depth of Scrabble with the high-pressure speed of blitz chess and party word games, WordRush pits wordsmiths against each other in real-time battles.
+Word games are usually slow, asynchronous, or turn-based. **WordRush** was built for people who want high-adrenaline vocabulary battles in real time:
 
-Every match tests your vocabulary under extreme pressure: lock in letters, formulate words matching dynamic boundary constraints, dodge ticking bomb detonations, and climb the global competitive ladder.
-
----
-
-## ✨ Key Features
-
-- **⚡ Real-Time Multiplayer Sync**: Zero-lag matchmaking and room state management powered by Supabase Realtime (Presence & Broadcast channels).
-- **🔤 Dynamic "Sandwich" Letter Constraints**: Rounds require words beginning with one player's letter and ending with the opponent's letter, alternating turns to keep players on their toes.
-- **💣 2v2 Hot Potato Bomb Mode**: Team-based panic mode! Chain words using the last letter of the previous word (*Shiritori* style). Longer words speed up the bomb's tick multiplier—pass it before it detonates!
-- **🧠 Competitive ELO & Intelligence Points (IP)**: True skill tracking powered by a K-32 ELO rating formula, ensuring balanced matchmaking and high-stakes games.
-- **🏆 Global Ranked Leaderboards**: Compete for top placement in the real-time Global Top 50 rankings.
-- **🌫️ Fog-of-War Anti-Peeking**: Dynamic client-side masking conceals opponent letters and submitted words during live phases until reveal time.
-- **🔊 Procedural Web Audio Engine**: Custom Web Audio API synthesizer for tactile mechanical key clicks, harmonic submission chimes, speed bonus fanfare, and thunderous bomb explosions.
-- **💬 Real-Time Emotes & Social Reactions**: Floating animated emoji reactions with broadcasted physics.
-- **🎨 Tactile Claymorphism Design**: Warm clay & terracotta color palette, responsive 3D tile press physics, Framer Motion animations, and confetti particle showers.
-- **📱 True Cross-Platform (Web, iOS, Android)**: Native mobile runtime wrapped with Capacitor 8.
+- **1v1 Blitz (Sandwich Constraints):** You lock in a starting letter, your opponent locks in an ending letter (or vice versa). You both race against a 30-second clock to submit a valid dictionary word that satisfies the boundary letters. Longer words and quicker answers net bonus points!
+- **2v2 Hot Potato Bomb Mode:** Team panic mode! Words must chain off the last letter of the previous word (*Shiritori* style). Every successful word passed speeds up the bomb's tick multiplier. Don't let the fuse detonate on your turn!
+- **Zero-Backend Peer Sync:** Runs entirely over **Supabase Realtime Broadcast & Presence channels**. No separate game server process to keep alive—the client game engine authoritatively validates turns, ticks timers, and broadcasts state across rooms.
+- **Synthesized Web Audio:** Every sound—the mechanical key presses, countdown sirens, harmonic chord submissions, and bomb explosions—is generated procedurally in real time via the **Web Audio API**. Zero bulky MP3 files to download.
+- **Tactile Claymorphic Design:** Custom clay-themed UI built with Tailwind CSS v4 and Framer Motion spring physics. Tiles compress, bounce, and react to every input.
 
 ---
 
-## 🎮 Game Modes
+## 🎮 Game Modes & Rules
 
-### 1. ⚔️ 1v1 Ranked Duels (Quick Match & Custom Rooms)
-- **Letter Selection (10s)**: Both players choose an alphabet letter from a 3D tile grid.
-- **Letter Sandwich Constraint**: In odd rounds, your word must start with Player 1's letter and end with Player 2's letter. In even rounds, the roles flip!
-- **Word Entry (30s)**: Type a valid English dictionary word meeting the constraint. Live typing indicators notify opponents that you're active.
-- **Scoring Breakdown**:
-  - **Base Points**: 10 points
-  - **Length Bonus**: +1 point per letter in the word
-  - **Speed Demon Bonus**: **+5 points** to the fastest valid word submission
-  - **Win Streak Multipliers**: Multipliers increase as you chain consecutive valid rounds
-- **Outcome & ELO**: Matches run up to 10 rounds. Final scores adjust both players' **Intelligence Points (IP)** using an official ELO calculation.
+### 1. 1v1 Blitz Mode
+1. **Letter Selection (10s):** One player picks the first letter; the other picks the last letter.
+2. **The Reveal (2s):** Both boundary letters lock into the board.
+3. **Word Entry (30s):** Type and submit words that begin and end with the designated sandwich letters. Validated instantly against a 300,000+ word offline dictionary.
+4. **Scoring:** Base points scale with word length, multiplied by submission speed.
+5. **Match Resolution:** Play across up to 10 rounds. The winner takes the match and claims ELO rating points.
 
-### 2. 💣 2v2 Hot Potato Bomb Mode
-- **4-Player Squad Battles**: Form teams of two and fight to keep the bomb out of your hands.
-- **Word Chaining Rules**: The holding team must type a word that starts with the current letter (initially random).
-- **Bomb Handoff**: When a team submits a valid word:
-  1. The bomb passes instantly to the opposing team.
-  2. The next required letter becomes the **last letter** of the word submitted.
-  3. No word can be repeated during the round!
-- **Tick Multiplier Escalation**: Submitting a word with 4+ letters increases the bomb's tick multiplier:
-  $$\text{Multiplier} = \max(1, \text{length} - 3)$$
-  Longer words force the bomb timer to drain 2x, 3x, or 4x faster on your opponents!
-- **Detonation**: When the 60-second timer hits zero, **BOOM!** The opposing team gets a point. First team to 3 points wins.
+### 2. 2v2 Hot Potato Bomb Mode
+- 4 players divided into 2 teams.
+- Words must begin with the ending letter of the previous team's submission.
+- The bomb clock constantly ticks down. Submitting a word hands the active bomb to the next opponent.
+- If the bomb detonates while you're holding it, your team loses the round.
 
 ---
 
-## 🏗️ Architecture & State Machine
+## 🕹️ Architecture & How Multiplayer Works
 
-WordRush features an authoritative host-client hybrid model running over Supabase Realtime Channels:
+WordRush achieves sub-50ms turn synchronization without running an authoritative game server:
 
 ```mermaid
-flowchart TD
-    subgraph Matchmaking & Rooms
-        A[Player in Home Screen] -->|Quick Match| B[Supabase Presence Channel]
-        B -->|Peer Discovered| C[Elect Room Host]
-        C -->|Broadcast Invite| D[Joined Room]
-        A -->|Create Room Code| D
-        A -->|Enter 6-Char Code| D
+flowchart LR
+    subgraph ClientA [Player 1 Client]
+        InputA[Letter / Word Submission] --> StoreA[Zustand Store]
+        EngineA[Client Game Engine] --> AudioA[Web Audio Synth]
     end
 
-    subgraph 1v1 Match Loop
-        D --> E[Lobby: Ready Check]
-        E --> F[Letter Selection: 10s]
-        F --> G[Letter Reveal: 2s]
-        G --> H[Word Entry: 30s]
-        H --> I[Validation & Speed Bonus]
-        I --> J[Round Results: 5s]
-        J -->|Round < Max| F
-        J -->|Round == Max| K[Match Results & ELO Update via RPC]
+    subgraph Supabase [Supabase Infrastructure]
+        Pres[Realtime Presence Channel
+- Online Status
+- Room Lobby State]
+        BC[Realtime Broadcast Channel
+- Game State Sync
+- Timer Ticks
+- Emote Reactions]
+        DB[(PostgreSQL
+- Player Profiles
+- Atomic ELO Math)]
     end
 
-    subgraph 2v2 Bomb Loop
-        D --> L[Bomb Phase: 60s]
-        L -->|Valid Word Submitted| M[Shift Bomb to Opponent & Advance Letter]
-        M -->|Multiplier Escalates| L
-        L -->|Timer Hits Zero| N[Bomb Exploded: Point Awarded]
-        N -->|Best of 3 Rounds| L
-        N -->|Match Complete| K
+    subgraph ClientB [Player 2 Client]
+        StoreB[Zustand Store] --> ViewB[UI Rerender]
+        EngineB[Client Game Engine]
     end
+
+    InputA -->|Broadcast State| BC
+    BC --> StoreB
+    Pres <--> ClientA
+    Pres <--> ClientB
+    EngineA -->|On Match End| DB
 ```
 
-### Real-Time Networking Channels
-- **`global_lobby`**: Presence tracking channel for instantaneous peer matchmaking without requiring centralized match servers.
-- **`room:{roomId}`**: Dedicated broadcast channel synchronizing timers, letter selections, word submissions, typing states, and live emotes.
+- **Room Host Election:** The first player in a lobby acts as the authoritative room clock coordinator, broadcasting timestamp ticks across the channel.
+- **Anti-Peeking Client Masking:** Opponent inputs and draft letters remain masked on the client until submission reveal.
+- **Offline Validation:** Words are checked synchronously against `wordlist-english` on the client, eliminating API latency during fast typing.
 
 ---
 
-## 💻 Tech Stack
+## 🛠️ Tech Stack
 
-| Layer | Technology | Description |
+| Layer | Technology | Details |
 | :--- | :--- | :--- |
-| **Framework** | [React 19](https://react.dev/) | Modern concurrent UI architecture |
-| **Language** | [TypeScript](https://www.typescriptlang.org/) | Strict type safety across game state & protocol |
-| **Build Tool** | [Vite 8](https://vite.dev/) | Lightning-fast HMR and optimized bundler |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Custom design system with modern CSS variables |
-| **Animations** | [Framer Motion](https://www.framer.com/motion/) | Spring physics, tile clicks, modal transitions, and reactive UI |
-| **Realtime / DB** | [Supabase](https://supabase.com/) | Realtime Broadcast, Presence, PostgreSQL, and secure RPC functions |
-| **State Management**| [Zustand](https://github.com/pmndrs/zustand) | Lightweight, predictable reactive client store |
-| **Mobile Runtime** | [Capacitor 8](https://capacitorjs.com/) | Native iOS & Android bridge |
-| **Audio** | [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) | Zero-latency procedural sound synthesizer |
-| **Dictionary** | [wordlist-english](https://www.npmjs.com/package/wordlist-english) | Scrabble-compatible English dictionary (300,000+ words) |
-| **Icons & VFX** | [Lucide React](https://lucide.dev/) & [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti) | Clean vector icons and victory celebration particles |
-
----
-
-## 🎨 Design System
-
-WordRush uses a custom **Claymorphism** visual theme engineered to feel tactile, physical, and friendly:
-
-```css
---color-ink:         #221B2E;  /* Deep atmospheric backdrop */
---color-clay:        #2F2640;  /* Surface card clay */
---color-clay-light:  #3A2F4D;  /* Elevated tile surfaces */
---color-clay-dark:   #251E36;  /* 3D bevel bottom border */
---color-honey:       #F2A65A;  /* Primary radiant accent */
---color-terracotta:  #E8633D;  /* High-energy branding */
---color-moss:        #8FB996;  /* Success & valid validation */
---color-berry:       #C8506B;  /* Warning, low timer & explosions */
---color-cream:       #E9E2F2;  /* Smooth readable typography */
---color-muted:       #B7A8C9;  /* Secondary text */
-```
+| **Framework** | [React 19](https://react.dev/) + [Vite 8](https://vite.dev/) | Ultra-fast HMR and optimized bundler |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) | Strict type contracts across engine & networking |
+| **Networking** | [Supabase Realtime](https://supabase.com/) | Realtime Presence & Broadcast channels |
+| **State** | [Zustand](https://github.com/pmndrs/zustand) | Lightweight, predictable client state store |
+| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Custom tactile claymorphism color palette |
+| **Animations** | [Framer Motion](https://www.framer.com/motion/) | Spring-based tile physics & modal transitions |
+| **Procedural Audio** | Web Audio API | Low-latency oscillator-based sound synthesizer |
+| **Mobile Runtime** | [Capacitor 8](https://capacitorjs.com/) | Cross-platform builds for iOS & Android |
 
 ---
 
@@ -162,94 +102,60 @@ WordRush uses a custom **Claymorphism** visual theme engineered to feel tactile,
 
 ```text
 word-rush/
-├── assets/                       # Branding logos and README graphics
-│   └── word-rush-logo.png
-├── frontend/                     # Core React + Vite application
-│   ├── android/                  # Android native project (Capacitor)
-│   ├── ios/                      # iOS native project (Capacitor)
-│   ├── public/                   # Public assets & favicons
+├── assets/                       # Branding logos & app preview
+│   ├── word-rush-logo.png
+│   └── preview.png
+├── frontend/                     # Core React + Vite client
 │   ├── src/
 │   │   ├── components/           # UI components
-│   │   │   ├── ui/               # LetterTile, TileButton, EmoteWheel, Modals
-│   │   │   ├── BombPhase.tsx     # 2v2 Hot Potato interface
-│   │   │   ├── LetterSelection.tsx
-│   │   │   ├── WordEntry.tsx
-│   │   │   └── ResultsPhase.tsx
-│   │   ├── screens/              # Top-level screen views
+│   │   │   ├── ui/               # LetterTile, TileButton, EmoteWheel, FloatingEmotes
+│   │   │   ├── LetterSelection.tsx # 1v1 letter draft stage
+│   │   │   ├── WordEntry.tsx     # Active word input board
+│   │   │   ├── BombPhase.tsx     # 2v2 Hot Potato bomb interface
+│   │   │   └── ResultsPhase.tsx  # Round tally & match victory screen
+│   │   ├── screens/
 │   │   │   ├── AuthScreen.tsx    # Supabase authentication
-│   │   │   ├── HomeScreen.tsx    # Matchmaking & room lobby
+│   │   │   ├── HomeScreen.tsx    # Quick match & custom room lobby
 │   │   │   ├── LobbyScreen.tsx   # Waiting room & room codes
 │   │   │   └── GameScreen.tsx    # Active battle arena
-│   │   ├── audio.ts              # Synthesizer Web Audio engine
-│   │   ├── dictionary.ts         # Fast-lookup dictionary validator
-│   │   ├── gameEngine.ts         # Authoritative game logic & ELO math
-│   │   ├── realtime.ts           # Supabase Presence & Broadcast networking
-│   │   ├── store.ts              # Zustand state store
-│   │   ├── supabaseClient.ts     # Supabase client instantiation
-│   │   └── types.ts              # Data contracts and TypeScript interfaces
-│   ├── capacitor.config.ts       # Capacitor mobile configuration
+│   │   ├── audio.ts              # Web Audio procedural sound engine
+│   │   ├── dictionary.ts         # Fast 300k+ word lookup engine
+│   │   ├── gameEngine.ts         # Authoritative turn loop & timing
+│   │   ├── realtime.ts           # Supabase Presence & Broadcast channels
+│   │   ├── store.ts              # Zustand global game state
+│   │   └── supabaseClient.ts     # Supabase client initialization
+│   ├── android/                  # Capacitor Android project
+│   ├── ios/                      # Capacitor iOS project
 │   ├── package.json
-│   ├── tailwind.config.ts
-│   └── vite.config.ts
-└── README.md                     # Root project documentation
+│   ├── vite.config.ts
+│   └── capacitor.config.ts
+└── README.md
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- **Node.js** (v18.0.0 or higher)
-- **npm** or **pnpm**
-- A free [Supabase](https://supabase.com) project
+### 1. Clone & Install
+```bash
+git clone https://github.com/itsgoksz/word-rush.git
+cd word-rush/frontend
+npm install
+```
 
-### Installation
+### 2. Configure Environment Variables
+Create a `.env` file inside `frontend/`:
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/itsgoksz/word-rush.git
-   cd word-rush
-   ```
-
-2. **Navigate to the frontend and install dependencies**:
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-3. **Configure Environment Variables**:
-   Copy the example environment configuration:
-   ```bash
-   cp .env.example .env
-   ```
-   Open `.env` and fill in your Supabase credentials:
-   ```env
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-   ```
-
-4. **Start the Development Server**:
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:5173](http://localhost:5173) in your browser. Open an Incognito window to test real-time multiplayer between two players!
-
----
-
-## 🗄️ Supabase Setup
-
-WordRush relies on Supabase for player authentication, profiles, real-time presence/broadcast, and atomic match outcome transactions.
-
-### 1. Enable Realtime
-In your Supabase project dashboard:
-1. Navigate to **Project Settings** > **API**.
-2. Under **Realtime**, make sure Broadcast and Presence are enabled for your project.
-
-### 2. Database Schema
-Execute the following SQL in your Supabase SQL Editor:
+### 3. Supabase Realtime & Database Setup
+In your Supabase project:
+1. Ensure **Realtime** is enabled under **Project Settings > API**.
+2. Run this schema in the Supabase SQL Editor for player profiles and atomic ELO scoring:
 
 ```sql
--- Create the profiles table
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
@@ -259,25 +165,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable Row Level Security (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Allow public read access to leaderboard and player profiles
-CREATE POLICY "Profiles are viewable by everyone" 
-  ON public.profiles FOR SELECT 
-  USING (true);
+CREATE POLICY "Profiles are viewable by everyone" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
--- Allow authenticated users to insert their own profile
-CREATE POLICY "Users can insert their own profile" 
-  ON public.profiles FOR INSERT 
-  WITH CHECK (auth.uid() = id);
-
--- Allow authenticated users to update their own profile
-CREATE POLICY "Users can update their own profile" 
-  ON public.profiles FOR UPDATE 
-  USING (auth.uid() = id);
-
--- Stored Procedure: Update Match Result (Atomic ELO Update)
+-- Atomic Match ELO calculation
 CREATE OR REPLACE FUNCTION public.update_match_result(
   winner_id UUID,
   loser_id UUID,
@@ -286,67 +180,34 @@ CREATE OR REPLACE FUNCTION public.update_match_result(
 )
 RETURNS VOID AS $$
 BEGIN
-  -- Update Winner
-  UPDATE public.profiles
-  SET 
-    elo = elo + winner_elo_change,
-    wins = wins + 1
-  WHERE id = winner_id;
-
-  -- Update Loser
-  UPDATE public.profiles
-  SET 
-    elo = GREATEST(100, elo + loser_elo_change),
-    losses = losses + 1
-  WHERE id = loser_id;
+  UPDATE public.profiles SET elo = elo + winner_elo_change, wins = wins + 1 WHERE id = winner_id;
+  UPDATE public.profiles SET elo = GREATEST(100, elo + loser_elo_change), losses = losses + 1 WHERE id = loser_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
+### 4. Start the Dev Server
+```bash
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in two browser tabs (or an incognito window) to test live 1v1 matchmaking locally.
+
 ---
 
-## 📱 Mobile Builds (Capacitor)
+## 📱 Mobile Builds (iOS & Android)
 
-WordRush is configured to build natively for iOS and Android using Capacitor:
-
-### 1. Build the Web Assets and Sync
 ```bash
 cd frontend
-npm run sync
-```
+npm run build
+npx cap sync
 
-### 2. Run on iOS (macOS required with Xcode)
-```bash
+# Open in Xcode or Android Studio
 npx cap open ios
-```
-*Select your target simulator or plugged-in iPhone in Xcode and click **Run**.*
-
-### 3. Run on Android (Android Studio required)
-```bash
 npx cap open android
 ```
-*Build the APK or run directly to an Android Virtual Device (AVD).*
-
----
-
-## 🤝 Contributing
-
-Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
 <p align="center">
-  Crafted with ❤️ by <a href="https://github.com/itsgoksz">itsgoksz</a>
+  Crafted by <a href="https://github.com/itsgoksz">itsgoksz</a>
 </p>
