@@ -7,7 +7,7 @@
 > Fast-paced, real-time competitive word dueling on web and mobile. Scrabble tactics collide with high-pressure blitz chess. Lock boundary letters, dodge ticking bomb fuses, and climb the global ELO ladder.
 
 <p align="center">
-  <img src="assets/preview.png" alt="WordRush Arena Preview" width="100%" style="border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12);" />
+  <img src="assets/preview.png" alt="WordRush Mobile Lobby & Matchmaking" width="380" style="border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12);" />
 </p>
 
 ---
@@ -17,7 +17,8 @@
 Word games have been stuck in slow, asynchronous loops for decades: waiting 4 hours for an opponent to play a 3-letter word on a board. 
 
 **WordRush** was built for people who crave high-adrenaline, real-time vocabulary battles:
-- **1v1 Blitz (Sandwich Constraints):** You pick a starting letter, your opponent picks an ending letter. Both players scramble against a ticking 30-second fuse to type valid dictionary words that satisfy the boundary letters. Speed and word length grant massive multipliers!
+- **1v1 Quick Match & Competitive Ladder:** Jump into instant matchmaking or challenge friends across custom 1v1 and 2v2 rooms with room codes, live rating tracking (IP / Elo system), and global leaderboards.
+- **1v1 Blitz (Sandwich Constraints):** You pick a starting letter, your opponent picks an ending letter. Both players scramble against a ticking fuse to type valid dictionary words that satisfy the boundary letters. Speed and word length grant massive multipliers!
 - **2v2 Hot Potato Bomb Mode:** Team panic mode! Words chain off the last letter of the opponent's word (*Shiritori* style). Every successful pass accelerates the bomb's tick multiplier. Don't let the fuse detonate while the bomb is in your hands!
 - **Zero-Server Peer Sync:** Runs entirely over **Supabase Realtime Broadcast & Presence channels**. No separate game server process to keep alive—the client game engine authoritatively validates turns, ticks timers, and broadcasts state across rooms with sub-50ms latency.
 - **Synthesized Web Audio:** Every sound—the mechanical key presses, countdown sirens, harmonic chord submissions, and bomb explosions—is generated procedurally in real time via the **Web Audio API**. Zero bulky MP3 files to download.
@@ -28,6 +29,12 @@ Word games have been stuck in slow, asynchronous loops for decades: waiting 4 ho
 ## Game Modes & Battle Rules
 
 ### 1. 1v1 Blitz Mode
+
+| Letter Draft & Selection Phase | Real-Time Word Battle Arena |
+| :---: | :---: |
+| <img src="assets/draft_preview.png" alt="WordRush Letter Draft Phase" width="340" style="border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);" /> | <img src="assets/battle_preview.png" alt="WordRush Word Battle Phase" width="340" style="border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);" /> |
+| **Tactical Letter Drafting:** Real-time round countdown (Round 1/10) where players lock in starting or ending boundary letters via the claymorphic keyboard. | **Constraint-Driven Speed Duel:** 18-second fuse requiring words satisfying sandwich constraints (e.g. Starts with D, Ends with F) with live character validation. |
+
 1. **Letter Selection (10s):** One player locks in the first letter; the opponent locks in the last letter.
 2. **The Reveal (2s):** Both boundary letters slam into the board.
 3. **Word Entry (30s):** Type and submit words that begin and end with the designated sandwich letters. Validated instantly against a 300,000+ word offline dictionary.
@@ -103,9 +110,11 @@ flowchart LR
 
 ```text
 word-rush/
-├── assets/                       # Branding logos & app preview
-│   ├── word-rush-logo.png
-│   └── preview.png
+├── assets/                       # Branding logos & gameplay screenshots
+│   ├── word-rush-logo.png        # App icon badge
+│   ├── preview.png               # Main lobby & matchmaking interface
+│   ├── draft_preview.png         # Tactical letter selection phase
+│   └── battle_preview.png        # Live word duel & constraint board
 ├── frontend/                     # Core React + Vite client
 │   ├── src/
 │   │   ├── components/           # UI components
