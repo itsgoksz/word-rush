@@ -2,9 +2,9 @@
   <img src="assets/word-rush-logo.png" alt="WordRush Logo" width="140" style="border-radius: 28px; box-shadow: 0 12px 36px rgba(0,0,0,0.35);" />
 </p>
 
-# ⚡ WordRush
+# WordRush
 
-> **Fast-paced, real-time competitive word dueling on web & mobile.** Scrabble tactics collide with high-pressure blitz chess. Lock boundary letters, dodge ticking bomb fuses, and climb the global ELO ladder.
+> Fast-paced, real-time competitive word dueling on web and mobile. Scrabble tactics collide with high-pressure blitz chess. Lock boundary letters, dodge ticking bomb fuses, and climb the global ELO ladder.
 
 <p align="center">
   <img src="assets/preview.png" alt="WordRush Arena Preview" width="100%" style="border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12);" />
@@ -12,7 +12,7 @@
 
 ---
 
-## ⚡ The Big Idea
+## The Big Idea
 
 Word games have been stuck in slow, asynchronous loops for decades: waiting 4 hours for an opponent to play a 3-letter word on a board. 
 
@@ -25,7 +25,7 @@ Word games have been stuck in slow, asynchronous loops for decades: waiting 4 ho
 
 ---
 
-## 🎮 Game Modes & Battle Rules
+## Game Modes & Battle Rules
 
 ### 1. 1v1 Blitz Mode
 1. **Letter Selection (10s):** One player locks in the first letter; the opponent locks in the last letter.
@@ -42,7 +42,7 @@ Word games have been stuck in slow, asynchronous loops for decades: waiting 4 ho
 
 ---
 
-## 🕹️ Architecture & Peer-to-Peer Networking
+## Architecture & Peer-to-Peer Networking
 
 WordRush achieves sub-50ms turn synchronization without running an authoritative game server like Colyseus or Node sockets:
 
@@ -84,7 +84,7 @@ flowchart LR
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology | Details |
 | :--- | :--- | :--- |
@@ -99,7 +99,7 @@ flowchart LR
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 word-rush/
@@ -135,7 +135,7 @@ word-rush/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone & Install
 ```bash
@@ -195,7 +195,7 @@ Open [http://localhost:5173](http://localhost:5173) in two browser windows to te
 
 ---
 
-## 📱 Mobile Builds (iOS & Android)
+## Mobile Builds (iOS & Android)
 
 ```bash
 cd frontend
