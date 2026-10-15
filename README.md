@@ -36,10 +36,9 @@ Word games have been stuck in slow, asynchronous loops for decades: waiting 4 ho
 | **Tactical Letter Drafting:** Real-time round countdown (Round 1/10) where players lock in starting or ending boundary letters via the claymorphic keyboard. | **Constraint-Driven Speed Duel:** 18-second fuse requiring words satisfying sandwich constraints (e.g. Starts with D, Ends with F) with live character validation. |
 
 1. **Letter Selection (10s):** One player locks in the first letter; the opponent locks in the last letter.
-2. **The Reveal (2s):** Both boundary letters slam into the board.
-3. **Word Entry (30s):** Type and submit words that begin and end with the designated sandwich letters. Validated instantly against a 300,000+ word offline dictionary.
-4. **Scoring:** Points scale with word length multiplied by submission speed.
-5. **Match Resolution:** Battle across up to 10 rounds. The winner takes the match and claims ELO rating points.
+2. **Word Entry (30s):** Type and submit words that begin and end with the designated sandwich letters. Validated instantly against a 300,000+ word offline dictionary.
+3. **Scoring:** Points scale with word length multiplied by submission speed.
+4. **Match Resolution:** Battle across up to 10 rounds. The winner takes the match and claims ELO rating points.
 
 ### 2. 2v2 Hot Potato Bomb Mode
 - 4 players divided into 2 teams.
